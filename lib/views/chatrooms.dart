@@ -4,8 +4,7 @@ import 'package:chatapp/helper/helperfunctions.dart';
 import 'package:chatapp/helper/theme.dart';
 import 'package:chatapp/services/auth.dart';
 import 'package:chatapp/services/database.dart';
-import 'package:chatapp/views/chat.dart';
-import 'package:chatapp/views/search.dart';
+import 'package:chatapp/views/chat_2.dart';
 import 'package:flutter/material.dart';
 
 class ChatRoom extends StatefulWidget {
@@ -25,12 +24,11 @@ class _ChatRoomState extends State<ChatRoom> {
                 itemCount: snapshot.data.documents.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
+                  print("here is the user id");
+                  print(snapshot.data.documents[index].documentID);
                   return ChatRoomsTile(
-                    userName: snapshot.data.documents[index].data['chatRoomId']
-                        .toString()
-                        .replaceAll("_", "")
-                        .replaceAll(Constants.myName, ""),
-                    chatRoomId: snapshot.data.documents[index].data["chatRoomId"],
+                    userName: snapshot.data.documents[index].data()['name'],
+                    chatRoomId: snapshot.data.documents[index].documentID,
                   );
                 })
             : Container();
@@ -59,9 +57,12 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset(
-          "assets/images/logo.png",
-          height: 40,
+        title: Row(
+          children: <Widget>[
+            Icon(Icons.help_outline),
+            SizedBox(width: 10,),
+            Text("Support"),
+          ],
         ),
         elevation: 0.0,
         centerTitle: false,
@@ -81,13 +82,7 @@ class _ChatRoomState extends State<ChatRoom> {
       body: Container(
         child: chatRoomsList(),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.search),
-        onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Search()));
-        },
-      ),
+
     );
   }
 }
@@ -104,7 +99,8 @@ class ChatRoomsTile extends StatelessWidget {
       onTap: (){
         Navigator.push(context, MaterialPageRoute(
           builder: (context) => Chat(
-            chatRoomId: chatRoomId,
+            peerId: chatRoomId,
+            peerAvatar: "https://lh3.googleusercontent.com/-q6hBAFbdDQ8/AAAAAAAAAAI/AAAAAAAAAAA/AMZuucmHO6g4AWdwX4AbzsZ0jqwemt1nmw/photo.jpg",
           )
         ));
       },

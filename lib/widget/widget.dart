@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 Widget appBarMain(BuildContext context) {
   return AppBar(
-    title: Image.asset(
-      "assets/images/logo.png",
-      height: 40,
+    title: Row(
+      children: <Widget>[
+        Icon(Icons.help_outline),
+        SizedBox(width: 10,),
+        Text("Support"),
+      ],
     ),
     elevation: 0.0,
     centerTitle: false,

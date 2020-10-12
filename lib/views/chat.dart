@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:chatapp/helper/constants.dart';
 import 'package:chatapp/services/database.dart';
@@ -18,12 +19,22 @@ class _ChatState extends State<Chat> {
 
   Stream<QuerySnapshot> chats;
   TextEditingController messageEditingController = new TextEditingController();
+  ScrollController _scrollController = ScrollController();
+
+
+
+
 
   Widget chatMessages(){
+
     return StreamBuilder(
       stream: chats,
+
       builder: (context, snapshot){
         return snapshot.hasData ?  ListView.builder(
+
+          controller: _scrollController,
+
           itemCount: snapshot.data.documents.length,
             itemBuilder: (context, index){
               return MessageTile(
@@ -38,11 +49,9 @@ class _ChatState extends State<Chat> {
   addMessage() {
     if (messageEditingController.text.isNotEmpty) {
       Map<String, dynamic> chatMessageMap = {
-        "sendBy": Constants.myName,
+        "sentFrom": Constants.loggedInUser,
         "message": messageEditingController.text,
-        'time': DateTime
-            .now()
-            .millisecondsSinceEpoch,
+        'createdAt': FieldValue.serverTimestamp(),
       };
 
       DatabaseMethods().addMessage(widget.chatRoomId, chatMessageMap);
@@ -50,11 +59,16 @@ class _ChatState extends State<Chat> {
       setState(() {
         messageEditingController.text = "";
       });
+      Timer(
+          Duration(milliseconds: 300),
+              () => _scrollController
+              .jumpTo(_scrollController.position.maxScrollExtent));
     }
   }
 
   @override
   void initState() {
+
     DatabaseMethods().getChats(widget.chatRoomId).then((val) {
       setState(() {
         chats = val;
@@ -68,10 +82,16 @@ class _ChatState extends State<Chat> {
     return Scaffold(
       appBar: appBarMain(context),
       body: Container(
+        height: MediaQuery.of(context).size.height,
         child: Stack(
           children: [
-            chatMessages(),
-            Container(alignment: Alignment.bottomCenter,
+            Container(
+              height: MediaQuery.of(context).size.height-175,
+                child: chatMessages()
+            ),
+
+            Container(
+              alignment: Alignment.bottomCenter,
               width: MediaQuery
                   .of(context)
                   .size
@@ -83,6 +103,12 @@ class _ChatState extends State<Chat> {
                   children: [
                     Expanded(
                         child: TextField(
+                          onTap: () {
+                            Timer(
+                                Duration(milliseconds: 300),
+                                    () => _scrollController
+                                    .jumpTo(_scrollController.position.maxScrollExtent));
+                          },
                           controller: messageEditingController,
                           style: simpleTextStyle(),
                           decoration: InputDecoration(

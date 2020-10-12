@@ -1,17 +1,18 @@
+import 'package:chatapp/helper/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseMethods {
-  Future<void> addUserInfo(userData) async {
-    Firestore.instance.collection("users").add(userData).catchError((e) {
+  Future<void> addUserInfo(userData, userId) async {
+    Firestore.instance.collection("users").document(userId).setData(userData).catchError((e) {
       print(e.toString());
     });
   }
 
-  getUserInfo(String email) async {
+  getUserInfo(String userId) async {
     return Firestore.instance
         .collection("users")
-        .where("userEmail", isEqualTo: email)
-        .getDocuments()
+        .document(userId)
+        .get()
         .catchError((e) {
       print(e.toString());
     });
@@ -46,9 +47,9 @@ class DatabaseMethods {
 
   Future<void> addMessage(String chatRoomId, chatMessageData){
 
-    Firestore.instance.collection("chatRoom")
-        .document(chatRoomId)
-        .collection("chats")
+    Firestore.instance.collection("messages")
+        .document("${chatRoomId}-${Constants.loggedInUser}")
+        .collection("chat")
         .add(chatMessageData).catchError((e){
           print(e.toString());
     });
@@ -56,8 +57,8 @@ class DatabaseMethods {
 
   getUserChats(String itIsMyName) async {
     return await Firestore.instance
-        .collection("chatRoom")
-        .where('users', arrayContains: itIsMyName)
+        .collection("users")
+        .where('type', isEqualTo: 'support')
         .snapshots();
   }
 
